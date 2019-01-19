@@ -22,11 +22,15 @@ router.get('/grade', (req, res)=>{
     year:year,
     cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
   }
-  query.grade(form, ({error, grade})=>{
+  query.grade(form, ({error, result})=>{
     if(error)
       return res.json({error:error});
-    res.json({grade:grade});
+    res.json({grade:result});
   });
+});
+
+router.get('/performance', (req, res)=>{
+  
 });
 
 module.exports = router;
