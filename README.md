@@ -1,17 +1,17 @@
 # server-prototype
 Service:
  - API
-  - login[GET, POST]
-   - [GET]:{
+ - - login[GET, POST]
+ - - - [GET]:{
      encode:BOOLEAN[0, 1] // default: 0
    }
-   - [POST]:{
+ -  - [POST]:{
      account:STRING
      password:STRING
      captcha:INT[length:4]
    }
-  - grade[GET]
-    - [GET]:{
+ - - grade[GET]
+ - - - [GET]:{
       year:INT[1~3] // default: 1
     }
 
