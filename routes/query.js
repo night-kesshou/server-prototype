@@ -23,14 +23,29 @@ router.get('/grade', (req, res)=>{
     cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
   }
   query.grade(form, ({error, result})=>{
-    if(error)
+    if(error){
+      res.status(500);
       return res.json({error:error});
+    }
     res.json({grade:result});
+    //res.render('grade');
   });
 });
 
 router.get('/performance', (req, res)=>{
-  
+  let {jar} = req.session;
+  if(!jar){
+    res.status(302);
+    return res.json({error:'your cookie is not defined'});
+  }
+  let cookie = generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value);
+  query.performance({cookie:cookie}, ({error, result})=>{
+    if(error){
+      res.status(500);
+      return res.json({error:error});
+    }
+    res.json({performance:result});
+  });
 });
 
 module.exports = router;

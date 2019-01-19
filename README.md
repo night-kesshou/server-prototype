@@ -14,6 +14,7 @@ Service:
      * [GET]:{
          year:INT[1~3] // default: 1
        }
+   * performance[GET]
 
 modules:[
   express:[express-generator](https://expressjs.com/zh-tw/starter/generator.html),
