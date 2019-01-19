@@ -6,8 +6,8 @@ Service:
          encode:BOOLEAN[0, 1] // default: 0
        }
      * [POST]:{
-         account:STRING
-         password:STRING
+         account:STRING,
+         password:STRING,
          captcha:INT[length:4]
        }
    * grade[GET]
