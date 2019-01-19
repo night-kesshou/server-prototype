@@ -7,9 +7,12 @@ const query = require('./query');
 router.get('/login', (req, res)=>{
   let encode = (req.query.encode==="1");
   system.captcha(({error, captcha, cookie})=>{
-    if(error)
+    if(error){
+      res.status(500);
       return res.json({error:error});
+    }
     req.session.jar = cookie;
+    res.status(200);
     res.json({captcha:captcha});
   }, encode);
 });
@@ -17,10 +20,14 @@ router.get('/login', (req, res)=>{
 router.post('/login', (req, res)=>{
   let {jar} = req.session;
   let {account, password, captcha} = req.body;
-  if(!account||!password||!captcha)
+  if(!account||!password||!captcha){
+    res.status(400);
     return res.json({error:"登入資訊不完整"});
-  if(!jar)
+  }
+  if(!jar){
+    res.status(302);
     return res.json({error:"your cookie is not defined"});
+  }
   let form = {
     account:account,
     password:password,
@@ -28,8 +35,11 @@ router.post('/login', (req, res)=>{
     cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
   };
   system.login(form, ({error})=>{
-    if(error)
+    if(error){
+      res.status(500);
       return res.json({error:error});
+    }
+    res.status(200);
     res.json({msg:'login success'});
   });
 });

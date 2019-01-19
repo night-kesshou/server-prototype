@@ -6,10 +6,14 @@ const generateCookie2Jar = require('../../modules/generateCookie');
 router.get('/grade', (req, res)=>{
   let {jar} = req.session;
   let year = parseInt(req.query.year)||1;
-  if(year<1||year>3)
+  if(year<1||year>3){
+    res.status(400);
     return res.json({error:"年次錯誤"});
-  if(!jar)
+  }
+  if(!jar){
+    res.status(302);
     return res.json({error:'your cookie is not defined'});
+  }
   let form = {
     year:year,
     cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
