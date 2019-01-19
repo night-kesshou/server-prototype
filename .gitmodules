@@ -1,0 +1,3 @@
+[submodule "modules/spider"]
+	path = modules/spider
+	url = https://github.com/night-kesshou/modules
