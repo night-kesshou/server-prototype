@@ -1,19 +1,19 @@
 # server-prototype
 Service:
- - API
- - - login[GET, POST]
- - - - [GET]:{
-     encode:BOOLEAN[0, 1] // default: 0
-   }
- -  - [POST]:{
-     account:STRING
-     password:STRING
-     captcha:INT[length:4]
-   }
- - - grade[GET]
- - - - [GET]:{
-      year:INT[1~3] // default: 1
-    }
+ * API
+   * login[GET, POST]
+     * [GET]:{
+         encode:BOOLEAN[0, 1] // default: 0
+       }
+     * [POST]:{
+         account:STRING
+         password:STRING
+         captcha:INT[length:4]
+       }
+   * grade[GET]
+     * [GET]:{
+         year:INT[1~3] // default: 1
+       }
 
 modules:[
   express:[express-generator](https://expressjs.com/zh-tw/starter/generator.html),
