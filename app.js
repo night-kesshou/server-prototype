@@ -7,6 +7,7 @@ var session = require('express-session');
 var random = require('./modules/random');
 
 var indexRouter = require('./routes/index');
+var queryRouter = require('./routes/query');
 var API = require('./routes/api');
 
 var app = express();
@@ -26,6 +27,7 @@ app.use(session({
 }));
 
 app.use('/', indexRouter);
+app.use('/query', queryRouter);
 app.use('/api', API);
 
 // catch 404 and forward to error handler

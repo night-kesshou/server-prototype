@@ -1,26 +1,22 @@
 var express = require('express');
 var router = express.Router();
+var system = require('../modules/spider');
+var generateCookie2Jar = require('../modules/generateCookie');
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index');
 });
 
 router.get('/login', (req, res)=>{
-  let errorCode = req.query.status;
+  if(req.session.login)
+    return res.redirect(302, '/');
+  let errorCode = parseInt(req.query.status);
   let templateVal = {
     error:"",
-    captcha:""
+    captcha:(req.session.captchadata||"")
   };
-  if(errorCode!=undefined){
-    switch(errorCode){
-      case 1:
-        templateVal.error = "找不到Cookie, 請啟用cookie或者重新登入";
-      case 2:
-        templateVal.error = "錯誤的請求格式"
-    }
+  if(req.session.captchadata)
     return res.render('login', templateVal);
-  }
   system.captcha(({error, captcha, cookie})=>{
     if(error){
       res.status(500);
@@ -28,6 +24,7 @@ router.get('/login', (req, res)=>{
     }else{
       res.status(200);
       req.session.jar = cookie;
+      req.session.captchadata = captcha;
       templateVal.captcha = captcha;
     }
     res.render('login', templateVal);
@@ -35,12 +32,31 @@ router.get('/login', (req, res)=>{
 });
 
 router.post('/login', (req, res)=>{
+  if(req.session.login)
+    return res.redirect(302, '/');
   let jar = req.session.jar;
   let {account, password, captcha} = req.body;
   if(!jar)
-    return res.redirect(302, '/login?status=1');
+    return res.render('login', {error:"找不到Cookie, 請啟用cookie或者重新登入", captcha:req.session.captchadata});
+    // return res.redirect(302, '/login?status=1');
   if(!account||!password||!captcha)
-    return res.redirect(400, '/login?status=2');
+    return res.render('login', {error:"錯誤的請求格式, 帳號密碼或者驗證碼為空或者資料遺失", captcha:req.session.captchadata});
+    // return res.redirect(400, '/login?status=2');
+  let form = {
+    account:account,
+    password:password,
+    captcha:parseInt(captcha),
+    cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
+  };
+  system.login(form, ({error})=>{
+    if(error){
+      res.status(500);
+      return res.render('login', {error:error, captcha:req.session.captchadata});
+      // return res.redirect(302, '/login?status');
+    }
+    req.session.login = true;
+    res.status(200).send('login success!');
+  });
 });
 
 module.exports = router;
