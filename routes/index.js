@@ -1,16 +1,18 @@
 var express = require('express');
 var router = express.Router();
 var system = require('../modules/spider');
-var generateCookie2Jar = require('../modules/generateCookie');
 
 router.get('/', function(req, res, next) {
-  res.render('index');
+  if(req.session&&req.session.db&&req.session.db.login)
+    res.send(`您已登入: <a href="/query">goto home page</a>`);
+  else
+    res.render('index');
 });
 
 router.get('/login', (req, res)=>{
-  if(req.session.login)
+  if(req.session.db&&req.session.db.login)
     return res.redirect(302, '/');
-  let errorCode = parseInt(req.query.status);
+
   let templateVal = {
     error:"",
     captcha:(req.session.captchadata||"")
@@ -29,34 +31,6 @@ router.get('/login', (req, res)=>{
     }
     res.render('login', templateVal);
   },1);
-});
-
-router.post('/login', (req, res)=>{
-  if(req.session.login)
-    return res.redirect(302, '/');
-  let jar = req.session.jar;
-  let {account, password, captcha} = req.body;
-  if(!jar)
-    return res.render('login', {error:"找不到Cookie, 請啟用cookie或者重新登入", captcha:req.session.captchadata});
-    // return res.redirect(302, '/login?status=1');
-  if(!account||!password||!captcha)
-    return res.render('login', {error:"錯誤的請求格式, 帳號密碼或者驗證碼為空或者資料遺失", captcha:req.session.captchadata});
-    // return res.redirect(400, '/login?status=2');
-  let form = {
-    account:account,
-    password:password,
-    captcha:parseInt(captcha),
-    cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
-  };
-  system.login(form, ({error})=>{
-    if(error){
-      res.status(500);
-      return res.render('login', {error:error, captcha:req.session.captchadata});
-      // return res.redirect(302, '/login?status');
-    }
-    req.session.login = true;
-    res.status(200).send('login success!');
-  });
 });
 
 module.exports = router;

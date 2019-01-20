@@ -5,19 +5,23 @@ const generateCookie2Jar = require('../../modules/generateCookie');
 const query = require('./query');
 
 router.get('/login', (req, res)=>{
+  if(req.session.db&&req.session.db.login)
+    return res.json({error:'已登入'});
+
   let encode = (req.query.encode==="1");
   system.captcha(({error, captcha, cookie})=>{
     if(error){
-      res.status(500);
       return res.json({error:error});
     }
     req.session.jar = cookie;
-    res.status(200);
     res.json({captcha:captcha});
   }, encode);
 });
 
 router.post('/login', (req, res)=>{
+  if(req.session.db&&req.session.db.login)
+    return res.json({error:'已登入'});
+
   let {jar} = req.session;
   let {account, password, captcha} = req.body;
   if(!account||!password||!captcha){
@@ -25,7 +29,7 @@ router.post('/login', (req, res)=>{
     return res.json({error:"登入資訊不完整"});
   }
   if(!jar){
-    res.status(302);
+    res.status(400);
     return res.json({error:"your cookie is not defined"});
   }
   let form = {
@@ -36,10 +40,9 @@ router.post('/login', (req, res)=>{
   };
   system.login(form, ({error})=>{
     if(error){
-      res.status(500);
       return res.json({error:error});
     }
-    res.status(200);
+    req.session.db = {login:true};
     res.json({msg:'login success'});
   });
 });

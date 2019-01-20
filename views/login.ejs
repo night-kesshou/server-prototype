@@ -5,16 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <title>校務行政系統登入</title>
+<style>
+pre#msg{
+  transition-duration: 0.5s;
+}
+</style>
 </head>
 <body>
 <h1>校務行政系統</h1>
-<form method="POST">
+<form name="login">
   <input name="account" placeholder="account"><br>
   <input type="password" name="password" placeholder="password"><br>
   <input type="text" name="captcha" placeholder="CAPTCHA"><br>
   <img src="<%= captcha %>" alt="CAPTCHA">
-  <input type="submit">
-  <pre style="color:red;"><%= error %></pre>
+  <button type="button" id="login">登入</button>
+  <pre id="msg" style="color:red;"><%= error %></pre>
 </form>
 </body>
+<script>
+var msg;
+window.onload = () => {
+  msg = document.querySelector("pre#msg");
+  document.querySelector("button#login").onclick = login;
+}
+
+function login(){
+  let {account, password, captcha} = document.login;
+  if(!account.value||!password.value||!captcha.value)
+    return alert("請填寫完整資訊!");
+
+  msg.style.opacity = "0";
+  msg.innerText = "登入中...";
+  let http = new XMLHttpRequest();
+  http.open('POST', '/api/login', true);
+  http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  http.onreadystatechange = () => {
+    if(http.readyState == 4){
+      let result = JSON.parse(http.responseText);
+      msg.style.opacity = "1";
+      msg.innerText = result.error||"登入成功";
+      if(result.error=="連續登入失敗達3次以上，請等 20 分鐘後再試！"){
+        setTimeout(()=>(location.href = "/login"), 20*60*1000);
+        document.querySelector("button#login").onclick = function(){};
+      }
+      if(!result.error){
+        msg.style.color = "blue";
+        setTimeout(()=>(location.href = "/"), 1200);
+      }
+    }
+  }
+  http.send(`account=${account.value}&password=${password.value}&captcha=${captcha.value}`);
+}
+</script>
 </html>

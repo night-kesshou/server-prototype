@@ -9,43 +9,20 @@ router.get('/', function(req, res, next) {
 
 router.get('/grade', (req, res)=>{
   let {jar} = req.session;
-  let year = parseInt(req.query.year)||1;
-  if(year<1||year>3){
-    res.status(400);
-    return res.json({error:"年次錯誤"});
-  }
+
   if(!jar){
-    res.status(302);
-    return res.json({error:'your cookie is not defined'});
+    return res.status(403).send("請先登入");
   }
-  let form = {
-    year:year,
-    cookie:generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value)
-  }
-  query.grade(form, ({error, result})=>{
-    if(error){
-      res.status(500);
-      return res.json({error:error});
-    }
-    res.json({grade:result});
-    //res.render('grade');
-  });
+  res.send("ok!");
 });
 
 router.get('/performance', (req, res)=>{
   let {jar} = req.session;
+
   if(!jar){
-    res.status(302);
-    return res.json({error:'your cookie is not defined'});
+    return res.status(403).send("請先登入");
   }
-  let cookie = generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value);
-  query.performance({cookie:cookie}, ({error, result})=>{
-    if(error){
-      res.status(500);
-      return res.json({error:error});
-    }
-    res.json({performance:result});
-  });
+  res.send('ok!');
 });
 
 module.exports = router;
