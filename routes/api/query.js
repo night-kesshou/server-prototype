@@ -50,4 +50,23 @@ router.get('/performance', (req, res)=>{
   });
 });
 
+router.get('/attendance', (req, res)=>{
+  let {jar} = req.session;
+  if(!jar){
+    res.status(400);
+    return res.json({error:'your cookie is not defined'});
+  }
+  if(req.session.db&&req.session.db.performance!=undefined){
+    return res.json(req.session.db.attendance);
+  }
+  let cookie = generateCookie2Jar(jar._jar.cookies[0].key, jar._jar.cookies[0].value);
+  query.attendance({cookie:cookie}, ({error, result})=>{
+    if(error){
+      return res.json({error:error});
+    }
+    req.session.db.attendance = result;
+    res.json(result);
+  });
+});
+
 module.exports = router;
